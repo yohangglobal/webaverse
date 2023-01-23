@@ -1,15 +1,40 @@
 import path from 'path';
 import fs from 'fs';
-import express from 'express';
 import encoding from 'encoding-japanese';
 
 import * as THREE from 'three';
 import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js';
 import {MMDLoader} from 'three/examples/jsm/loaders/MMDLoader.js';
-import {CharsetEncoder} from 'three/examples/jsm/libs/mmdparser.module.js';
+// import {CharsetEncoder} from 'three/examples/jsm/libs/mmdparser.module.js';
 
-import {getAvatarHeight, getModelBones, modelBoneToAnimationBone} from './avatars/util.mjs';
+import {getAvatarHeight, getModelBones, modelBoneToAnimationBone} from '../avatars/util.mjs';
 import {zbencode, zbdecode} from 'zjs/encoding.mjs';
+
+const basePath = import.meta.url
+  .replace(/^file:\/\//, '')
+  .replace(/\/[^\/]+$/, '');
+globalThis.fetch = (_fetch => {
+  function fetch(u, options) {
+    if (u instanceof Request) {
+       u = decodeURI(u.url);
+    }
+    if (typeof u === 'string') {
+      const match = u.match(/^file:\/*(\/.+)$/);
+      if (match) {
+        return (async () => {
+          const u = match[1];
+          // console.log('read file', u, new Error().stack);
+          const arrayBuffer = await fs.promises.readFile(u);
+          const blob = new Blob([arrayBuffer]);
+          const response = new Response(blob);
+          return response;
+        })();
+      }
+    }
+    return _fetch(u, options)
+  }
+  return fetch;
+})(globalThis.fetch);
 
 class ProgressEvent {
   constructor(type, options) {
@@ -139,37 +164,20 @@ globalThis.ProgressEvent = ProgressEvent;
 
   const trackNames = ['mixamorigHips.position', 'mixamorigHips.quaternion', 'mixamorigSpine.quaternion', 'mixamorigSpine1.quaternion', 'mixamorigSpine2.quaternion', 'mixamorigNeck.quaternion', 'mixamorigHead.quaternion', 'mixamorigLeftShoulder.quaternion', 'mixamorigLeftArm.quaternion', 'mixamorigLeftForeArm.quaternion', 'mixamorigLeftHand.quaternion', 'mixamorigLeftHandMiddle1.quaternion', 'mixamorigLeftHandMiddle2.quaternion', 'mixamorigLeftHandMiddle3.quaternion', 'mixamorigLeftHandThumb1.quaternion', 'mixamorigLeftHandThumb2.quaternion', 'mixamorigLeftHandThumb3.quaternion', 'mixamorigLeftHandIndex1.quaternion', 'mixamorigLeftHandIndex2.quaternion', 'mixamorigLeftHandIndex3.quaternion', 'mixamorigLeftHandRing1.quaternion', 'mixamorigLeftHandRing2.quaternion', 'mixamorigLeftHandRing3.quaternion', 'mixamorigLeftHandPinky1.quaternion', 'mixamorigLeftHandPinky2.quaternion', 'mixamorigLeftHandPinky3.quaternion', 'mixamorigRightShoulder.quaternion', 'mixamorigRightArm.quaternion', 'mixamorigRightForeArm.quaternion', 'mixamorigRightHand.quaternion', 'mixamorigRightHandMiddle1.quaternion', 'mixamorigRightHandMiddle2.quaternion', 'mixamorigRightHandMiddle3.quaternion', 'mixamorigRightHandThumb1.quaternion', 'mixamorigRightHandThumb2.quaternion', 'mixamorigRightHandThumb3.quaternion', 'mixamorigRightHandIndex1.quaternion', 'mixamorigRightHandIndex2.quaternion', 'mixamorigRightHandIndex3.quaternion', 'mixamorigRightHandRing1.quaternion', 'mixamorigRightHandRing2.quaternion', 'mixamorigRightHandRing3.quaternion', 'mixamorigRightHandPinky1.quaternion', 'mixamorigRightHandPinky2.quaternion', 'mixamorigRightHandPinky3.quaternion', 'mixamorigRightUpLeg.quaternion', 'mixamorigRightLeg.quaternion', 'mixamorigRightFoot.quaternion', 'mixamorigRightToeBase.quaternion', 'mixamorigLeftUpLeg.quaternion', 'mixamorigLeftLeg.quaternion', 'mixamorigLeftFoot.quaternion', 'mixamorigLeftToeBase.quaternion']
 
-  const baker = async (uriPath = '', fbxFileNames, vpdFileNames, outFile) => {
+  const baker = async (fbxFileNames, vpdFileNames, outFile) => {
+    try {
     const animations = [];
 
     // mmd
     const mmdLoader = new MMDLoader();
-    const charsetEncoder = new CharsetEncoder();
     const mmdPoses = [];
     for (const name of vpdFileNames) {
-      // console.log('try', name);
-
       let o;
-
-      /* const content = fs.readFileSync('public/' + name);
-      const text = charsetEncoder.s2u(content);
-      // console.log('got text', text);
-      const parser = mmdLoader._getParser();
-      o = parser.parseVpd(text, true); */
-
-      const content = fs.readFileSync('public/' + name);
+      const content = fs.readFileSync(path.join(basePath, '..', 'public', name));
       var sjisArray = encoding.convert(content, 'UTF8');
       const text = new TextDecoder().decode(Uint8Array.from(sjisArray));
       const parser = mmdLoader._getParser();
       o = parser.parseVpd(text, true);
-
-      /* const u = uriPath + name;
-      o = await new Promise((accept, reject) => {
-          mmdLoader.loadVPD(u, false, o => {
-            // o.scene = o;
-            accept(o);
-          }, function progress() {}, reject);
-      }); */
 
       const poses = _parseVpd(o);
       mmdPoses.push({
@@ -212,7 +220,7 @@ globalThis.ProgressEvent = ProgressEvent;
     const fbxLoader = new FBXLoader();
     const height = await (async () => {
       let o;
-      const u = uriPath + 'animations/' + idleAnimationName;
+      const u = 'file://' + path.join(basePath, '..', 'public', 'animations', idleAnimationName);
       o = await new Promise((accept, reject) => {
         fbxLoader.load(u, o => {
           o.scene = o;
@@ -224,9 +232,9 @@ globalThis.ProgressEvent = ProgressEvent;
       const modelBones = getModelBones(o);
       return getAvatarHeight(modelBones);
     })();
-    // console.log('got height', height);
+    console.log('got height', height);
     for (const name of fbxFileNames) {
-      const u = uriPath + name;
+      const u = 'file://' + path.join(basePath, '..', 'public', name);
       console.log('processing', name);
       let o;
       o = await new Promise((accept, reject) => {
@@ -552,26 +560,20 @@ globalThis.ProgressEvent = ProgressEvent;
     console.log('exporting animations');
     fs.writeFileSync(outFile, Buffer.from(animationsUint8Array));
     console.log('exported animations at', outFile);
+
+    } catch(err) {
+      console.warn(err.stack);
+    }
   };
 
   (async () => {
-    const app = express();
-    /* app.all('*', (req, res, next) => {
-      // console.log('got url 1', req.url);
-      req.url = decodeURI(req.url);
-      req.originalUrl = decodeURI(req.url);
-      // console.log('got url 2', req.url);
-      next();
-    }); */
-    app.use(express.static('public'));
-    app.listen(9999);
     const animationFileNames = fs.readdirSync('public/animations');
     const fbxFileNames = animationFileNames.filter(name => /\.fbx$/.test(name)).map(name => 'animations/' + name);
-    const vpdFileNames = findFilesWithExtension('public', 'poses', 'vpd');
+    const vpdFileNames = findFilesWithExtension('public', 'poses', 'vpd')//.map(name => 'public/' + name);
     const animationsResultFileName = 'public/animations/animations.z';
-    await baker('http://localhost:9999/', fbxFileNames, vpdFileNames, animationsResultFileName).catch(e => {
-      console.warn('bake error', e);
-    });
+    await baker(fbxFileNames, vpdFileNames, animationsResultFileName)/* .catch(e => {
+      console.warn('bake error', e.stack);
+    }); */
     process.exit();
   })();
 })();
