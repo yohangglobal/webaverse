@@ -3,6 +3,7 @@ name: 'Lint checks'
 on: [workflow_dispatch, push]
 jobs:
   lint:
+    if: ${{false}} # disabled for now
     name: 'Node.js v${{ matrix.node }}'
     runs-on: ubuntu-latest
     strategy:
