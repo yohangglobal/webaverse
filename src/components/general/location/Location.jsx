@@ -1,11 +1,11 @@
 import React, {useState, useContext, useEffect} from 'react';
 import styles from './Location.module.css';
 import {sceneManager} from '../../../../scene-manager'
-import {scenesBaseUrl} from '../../../../endpoints';
+import {scenesBaseUrl, defaultSceneName} from '../../../../endpoints';
 import CustomButton from '../custom-button';
 import {AppContext} from '../../app';
 import universe from '../../../../universe';
-import {makeId} from '../../../../util.js';
+import {makeId, parseQuery} from '../../../../util.js';
 import classnames from 'classnames';
 
 
@@ -65,6 +65,19 @@ export const Location = () => {
   const stopPropagation = event => {
     event.stopPropagation();
   };
+
+  const handleMultiplayerBtnClick = async () => {
+    setState({openedPanel: null});
+
+    let {src} = parseQuery(window.location.search);
+    if (src === undefined) {
+      src = scenesBaseUrl + defaultSceneName;
+    }
+
+    const sceneName = src.trim();
+    const roomName = makeId(5);
+    universe.enterMultiplayer(`/?src=${encodeURIComponent(sceneName)}&room=${roomName}`);
+  }
 
   const handleRoomCreateBtnClick = async () => {
     // const sceneName = selectedScene.trim();
@@ -148,7 +161,7 @@ export const Location = () => {
             text="Create Room"
             size={12}
             className={styles.methodButton}
-            onClick={handleRoomCreateBtnClick}
+            onClick={handleMultiplayerBtnClick}
           />
         </div>
         {rooms.map((room, i) => (

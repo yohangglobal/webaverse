@@ -4,14 +4,21 @@ responsibilities include loading the world on url change.
 */
 
 import metaversefile from 'metaversefile';
+import {NetworkRealms} from 'multiplayer-do/public/network-realms.mjs';
+// TODO: Delete old multiplayer code.
+/*
 import WSRTC from 'wsrtc/wsrtc.js';
+*/
 import * as Z from 'zjs';
 
-import {appsMapName, partyMapName, initialPosY, playersMapName} from './constants.js';
+import {appsMapName, partyMapName, initialPosY, playersMapName, realmSize} from './constants.js';
 import {loadOverworld} from './overworld.js';
 import {partyManager} from './party-manager.js';
 import physicsManager from './physics-manager.js';
+// TODO: Delete old multiplayer code.
+/*
 import physxWorkerManager from './physx-worker-manager.js';
+*/
 import {playersManager} from './players-manager.js';
 import {parseQuery} from './util.js';
 import {world} from './world.js';
@@ -27,6 +34,10 @@ class Universe extends EventTarget {
 
     this.currentWorld = null;
     this.sceneLoadedPromise = null;
+
+    this.multiplayerEnabled = false;
+    this.multiplayerConnected = false;
+    this.realms = null;
   }
 
   getWorldsHost() {
@@ -34,14 +45,23 @@ class Universe extends EventTarget {
       ((window.location.port ? parseInt(window.location.port, 10) : (window.location.protocol === 'https:' ? 443 : 80)) + 1) + '/worlds/';
   }
 
-  async enterWorld(worldSpec) {
+  async enterWorld(worldSpec, locationSpec) {
+    this.disconnectSingleplayer();
+    this.disconnectMultiplayer();
+    // TODO: Delete old multiplayer code.
+    /*
     this.disconnectRoom();
+    */
     
     const localPlayer = metaversefile.useLocalPlayer();
     /* localPlayer.teleportTo(new THREE.Vector3(0, 1.5, 0), camera.quaternion, {
       relation: 'float',
     }); */
-    localPlayer.position.set(0, initialPosY, 0);
+    if (locationSpec) {
+      localPlayer.position.copy(locationSpec.position);
+    } else {
+      localPlayer.position.set(0, initialPosY, 0);
+    }
     localPlayer.characterPhysics.setPosition(localPlayer.position);
     localPlayer.characterPhysics.reset();
     localPlayer.updateMatrixWorld();
@@ -55,10 +75,10 @@ class Universe extends EventTarget {
 
       const promises = [];
       const {src, room} = worldSpec;
-      if (!room) {
-        const state = new Z.Doc();
-        this.connectState(state);
-        
+      this.multiplayerEnabled = room !== undefined;
+      if (!this.multiplayerEnabled) {
+        await this.connectSinglePlayer();
+
         let match;
         if (src === undefined) { // default load
           // const sceneNames = await sceneManager.getSceneNamesAsync();
@@ -88,12 +108,21 @@ class Universe extends EventTarget {
         }
       } else {
         const p = (async () => {
+          await this.connectMultiplayer(src, room);
+        })();
+        promises.push(p);
+      }
+      // TODO: Delete old multiplayer code.
+      /*
+      } else {
+        const p = (async () => {
           const roomUrl = this.getWorldsHost() + room;
           await this.connectRoom(roomUrl);
         })();
         promises.push(p);
       }
-      
+      */
+
       this.sceneLoadedPromise = Promise.all(promises)
         .then(() => {});
       await this.sceneLoadedPromise;
@@ -112,9 +141,12 @@ class Universe extends EventTarget {
     this.dispatchEvent(new MessageEvent('worldload'));
   }
 
+  // TODO: Delete unused code.
+  /*
   async reload() {
     await this.enterWorld(this.currentWorld);
   }
+  */
 
   async pushUrl(u) {
     history.pushState({}, '', u);
@@ -125,6 +157,16 @@ class Universe extends EventTarget {
   async handleUrlUpdate() {
     const q = parseQuery(location.search);
     await this.enterWorld(q);
+  }
+
+  async enterMultiplayer(url) {
+    history.pushState({}, '', url);
+    window.dispatchEvent(new MessageEvent('pushstate'));
+    const worldSpec = parseQuery(location.search);
+    const locationSpec = {
+      position: playersManager.getLocalPlayer().position,
+    };
+    await this.enterWorld(worldSpec, locationSpec);
   }
 
   isSceneLoaded() {
@@ -147,22 +189,20 @@ class Universe extends EventTarget {
     }
   }
 
-  isConnected() { return !!this.wsrtc; }
+  isConnected() { return this.multiplayerConnected; }
 
   getConnection() { return this.wsrtc; }
 
-  // called by enterWorld() in universe.js
-  // This is called in single player mode instead of connectRoom
   connectState(state) {
     this.state = state;
     state.setResolvePriority(1);
+
     playersManager.clearRemotePlayers();
     playersManager.bindState(state.getArray(playersMapName));
 
     world.appManager.unbindState();
     world.appManager.clear();
     const appsArray = state.get(appsMapName, Z.Array);
-
     world.appManager.bindState(appsArray);
 
     const partyMap = state.get(partyMapName, Z.Map);
@@ -172,6 +212,91 @@ class Universe extends EventTarget {
     localPlayer.bindState(state.getArray(playersMapName));
   }
 
+  // Called by enterWorld() when a player connects as single-player.
+  async connectSinglePlayer(state = new Z.Doc()) {
+    this.connectState(state);
+  }
+
+  // Called by enterWorld() to ensure we aren't connected as single player.
+  disconnectSingleplayer() {
+    // Nothing to do.
+  }
+
+  // Called by enterWorld() when a player enables multi-player.
+  async connectMultiplayer(src, room, state = new Z.Doc()) {
+    console.log('Connect multiplayer');
+    if (src === undefined || room === undefined) {
+      console.error('Multiplayer src and room must be defined.')
+      return;
+    }
+
+    this.connectState(state);
+
+    // Set up the network realms.
+    const localPlayer = playersManager.getLocalPlayer();
+    this.realms = new NetworkRealms(room, localPlayer.playerId);
+
+    // Handle remote players joining and leaving the set of realms.
+    // These events are received both upon starting and during multiplayer.
+    const virtualPlayers = this.realms.getVirtualPlayers();
+    virtualPlayers.addEventListener('join', async e => {
+      const {playerId, player} = e.data;
+      console.log('Player joined:', playerId);
+    });
+    virtualPlayers.addEventListener('leave', e => {
+      const {playerId} = e.data;
+      console.log('Player left:', playerId);
+    });
+
+    const onConnect = async position => {
+      const localPlayer = playersManager.getLocalPlayer();
+
+      // Initialize network realms player.
+      this.realms.localPlayer.initializePlayer({
+        position,
+      }, {});
+
+      // Load the scene.
+      await metaversefile.createAppAsync({
+        start_url: src,
+      });
+
+      console.log('Multiplayer connected');
+      this.multiplayerConnected = true;
+    };
+
+    // Initiate network realms connection.
+    await this.realms.updatePosition(localPlayer.position.toArray(), realmSize, {
+      onConnect,
+    });
+
+    // Wait for world apps to be loaded so that avatar doesn't fall.
+    const TEST_INTERVAL = 100;
+    const MAX_TIMEOUT = 20000;
+    const startTime = Date.now();
+    while (world.appManager.pendingAddPromises.size > 0 && (Date.now() - startTime) < MAX_TIMEOUT) {
+      await new Promise(resolve => setTimeout(resolve, TEST_INTERVAL));
+    }
+  }
+
+  // Called by enterWorld() to ensure we aren't connected to multi-player.
+  disconnectMultiplayer() {
+    if (!this.multiplayerConnected) {
+      return;
+    }
+
+    this.multiplayerConnected = false;
+
+    if (this.realms) {
+      this.realms.disconnect();
+      this.realms = null;
+    }
+
+    console.log('Multiplayer disconnected');
+  }
+
+  // TODO: Delete old multiplayer code.
+  /*
   // called by enterWorld() in universe.js
   // This is called when a user joins a multiplayer room
   // either from single player or directly from a link
@@ -237,12 +362,16 @@ class Universe extends EventTarget {
 
     return this.wsrtc;
   }
+  */
 
+  // TODO: Delete old multiplayer code.
+  /*
   // called by enterWorld() in universe.js, to make sure we aren't already connected
   disconnectRoom() {
     if (this.wsrtc && this.wsrtc.state === 'open') this.wsrtc.close();
     this.wsrtc = null;
   }
+  */
 }
 const universe = new Universe();
 

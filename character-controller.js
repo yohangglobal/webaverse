@@ -850,7 +850,7 @@ class AvatarCharacter extends StateCharacter {
   }
 
   setSpawnPoint(position, quaternion) {
-    super.setSpawnPoint(position, quaternion);
+    //super.setSpawnPoint(position, quaternion);
     
     camera.position.copy(position);
     camera.quaternion.copy(quaternion);
