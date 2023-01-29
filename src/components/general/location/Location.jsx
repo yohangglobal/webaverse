@@ -5,7 +5,7 @@ import {scenesBaseUrl, defaultSceneName} from '../../../../endpoints';
 import CustomButton from '../custom-button';
 import {AppContext} from '../../app';
 import universe from '../../../../universe';
-import {makeId, parseQuery} from '../../../../util.js';
+import {parseQuery} from '../../../../util.js';
 import classnames from 'classnames';
 
 
@@ -75,7 +75,7 @@ export const Location = () => {
     }
 
     const sceneName = src.trim();
-    const roomName = makeId(5);
+    const roomName = universe.room;
     universe.enterMultiplayer(`/?src=${encodeURIComponent(sceneName)}&room=${roomName}`);
   }
 

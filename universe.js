@@ -20,7 +20,7 @@ import physicsManager from './physics-manager.js';
 import physxWorkerManager from './physx-worker-manager.js';
 */
 import {playersManager} from './players-manager.js';
-import {parseQuery} from './util.js';
+import {makeId, parseQuery} from './util.js';
 import {world} from './world.js';
 import {defaultSceneName} from './endpoints.js';
 import {sceneManager} from './scene-manager.js';
@@ -35,9 +35,11 @@ class Universe extends EventTarget {
     this.currentWorld = null;
     this.sceneLoadedPromise = null;
 
+    this.room = "";
     this.multiplayerEnabled = false;
     this.multiplayerConnected = false;
     this.realms = null;
+    this.virtualPlayersCleanupFns = [];
   }
 
   getWorldsHost() {
@@ -46,8 +48,8 @@ class Universe extends EventTarget {
   }
 
   async enterWorld(worldSpec, locationSpec) {
-    this.disconnectSingleplayer();
     this.disconnectMultiplayer();
+    this.disconnectSingleplayer();
     // TODO: Delete old multiplayer code.
     /*
     this.disconnectRoom();
@@ -74,10 +76,11 @@ class Universe extends EventTarget {
       // world.clear();
 
       const promises = [];
-      const {src, room} = worldSpec;
+      let {src, room} = worldSpec;
       this.multiplayerEnabled = room !== undefined;
       if (!this.multiplayerEnabled) {
-        await this.connectSinglePlayer();
+        room = makeId(5);
+        await this.connectSinglePlayer(room);
 
         let match;
         if (src === undefined) { // default load
@@ -108,7 +111,8 @@ class Universe extends EventTarget {
         }
       } else {
         const p = (async () => {
-          await this.connectMultiplayer(src, room);
+          await this.connectSinglePlayer(room);
+          await this.connectMultiplayer(room);
         })();
         promises.push(p);
       }
@@ -159,14 +163,25 @@ class Universe extends EventTarget {
     await this.enterWorld(q);
   }
 
+  // Enter multiplayer for the current scene - "Create Room" button click.
   async enterMultiplayer(url) {
     history.pushState({}, '', url);
     window.dispatchEvent(new MessageEvent('pushstate'));
+
     const worldSpec = parseQuery(location.search);
-    const locationSpec = {
-      position: playersManager.getLocalPlayer().position,
-    };
-    await this.enterWorld(worldSpec, locationSpec);
+    const {room} = worldSpec;
+
+    // Error if method called by other than "Create Room" button click.
+    if (room !== this.room) {
+      console.error('Unexpected multiplayer room.');
+      const locationSpec = {
+        position: playersManager.getLocalPlayer().position,
+      };
+      await this.enterWorld(worldSpec, locationSpec);
+      return;
+    }
+
+    await this.connectMultiplayer(room);
   }
 
   isSceneLoaded() {
@@ -212,85 +227,100 @@ class Universe extends EventTarget {
     localPlayer.bindState(state.getArray(playersMapName));
   }
 
-  // Called by enterWorld() when a player connects as single-player.
-  async connectSinglePlayer(state = new Z.Doc()) {
-    this.connectState(state);
-  }
-
-  // Called by enterWorld() to ensure we aren't connected as single player.
-  disconnectSingleplayer() {
-    // Nothing to do.
-  }
-
-  // Called by enterWorld() when a player enables multi-player.
-  async connectMultiplayer(src, room, state = new Z.Doc()) {
-    console.log('Connect multiplayer');
-    if (src === undefined || room === undefined) {
-      console.error('Multiplayer src and room must be defined.')
-      return;
-    }
-
-    this.connectState(state);
-
+  async connectNetworkRealms(room) {
     // Set up the network realms.
+    // This provides the audio and state mechanism.
+    this.room = room;
     const localPlayer = playersManager.getLocalPlayer();
-    this.realms = new NetworkRealms(room, localPlayer.playerId);
-
-    // Handle remote players joining and leaving the set of realms.
-    // These events are received both upon starting and during multiplayer.
-    const virtualPlayers = this.realms.getVirtualPlayers();
-    virtualPlayers.addEventListener('join', async e => {
-      const {playerId, player} = e.data;
-      console.log('Player joined:', playerId);
-    });
-    virtualPlayers.addEventListener('leave', e => {
-      const {playerId} = e.data;
-      console.log('Player left:', playerId);
-    });
-
+    this.realms = new NetworkRealms(this.room, localPlayer.playerId);
     const onConnect = async position => {
-      const localPlayer = playersManager.getLocalPlayer();
-
       // Initialize network realms player.
       this.realms.localPlayer.initializePlayer({
         position,
       }, {});
-
-      // Load the scene.
-      await metaversefile.createAppAsync({
-        start_url: src,
-      });
-
-      console.log('Multiplayer connected');
-      this.multiplayerConnected = true;
     };
 
     // Initiate network realms connection.
     await this.realms.updatePosition(localPlayer.position.toArray(), realmSize, {
       onConnect,
     });
+  }
 
-    // Wait for world apps to be loaded so that avatar doesn't fall.
-    const TEST_INTERVAL = 100;
-    const MAX_TIMEOUT = 20000;
-    const startTime = Date.now();
-    while (world.appManager.pendingAddPromises.size > 0 && (Date.now() - startTime) < MAX_TIMEOUT) {
-      await new Promise(resolve => setTimeout(resolve, TEST_INTERVAL));
+  disconnectNetworkRealms() {
+    if (this.realms) {
+      this.realms.disconnect();
+      this.realms = null;
+      this.room = "";
     }
   }
 
-  // Called by enterWorld() to ensure we aren't connected to multi-player.
+  // Called by enterWorld() when a player connects as single-player.
+  async connectSinglePlayer(room, state = new Z.Doc()) {
+    if (room === undefined) {
+      console.error('Multiplayer room must be defined.')
+      return;
+    }
+    this.connectState(state);
+    this.connectNetworkRealms(room);
+  }
+
+  // Called by enterWorld() to ensure we aren't connected as single player.
+  disconnectSingleplayer() {
+    this.disconnectNetworkRealms();
+  }
+
+  // Called by enterWorld() when a player enables multi-player.
+  async connectMultiplayer(room) {
+    console.log('Connect multiplayer');
+    if (room === undefined) {
+      console.error('Multiplayer room must be defined.')
+      return;
+    }
+
+    // The player is joining another room.
+    if (room !== this.room) {
+      this.disconnectNetworkRealms();
+      this.connectNetworkRealms(room);
+    }
+
+    // The network realms state of the (possibly modified) scene from single player is used; the scene is not reloaded.
+
+    // Handle remote players joining and leaving the set of realms.
+    // These events are received both upon starting and during multiplayer.
+    const virtualPlayers = this.realms.getVirtualPlayers();
+    const onVirtualPlayersJoin = e => {
+      const {playerId, player} = e.data;
+      console.log('Player joined:', playerId);
+    };
+    virtualPlayers.addEventListener('join', onVirtualPlayersJoin);
+    this.virtualPlayersCleanupFns.push(() => {
+      virtualPlayers.removeEventListener('join', onVirtualPlayersJoin);
+    });
+    const onVirtualPlayersLeave = e => {
+      const {playerId} = e.data;
+      console.log('Player left:', playerId);
+    };
+    virtualPlayers.addEventListener('leave', onVirtualPlayersLeave);
+    this.virtualPlayersCleanupFns.push(() => {
+      virtualPlayers.removeEventListener('leave', onVirtualPlayersLeave);
+    });
+
+    console.log('Multiplayer connected');
+    this.multiplayerConnected = true;
+  }
+
+  // Called by enterWorld() to ensure we aren't connected as multi-player.
   disconnectMultiplayer() {
     if (!this.multiplayerConnected) {
       return;
     }
 
-    this.multiplayerConnected = false;
-
-    if (this.realms) {
-      this.realms.disconnect();
-      this.realms = null;
+    for (const cleanupFn of this.virtualPlayersCleanupFns) {
+      cleanupFn();
     }
+    this.virtualPlayersCleanupFns = [];
+
+    this.multiplayerConnected = false;
 
     console.log('Multiplayer disconnected');
   }
