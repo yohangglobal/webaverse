@@ -206,8 +206,6 @@ class Universe extends EventTarget {
 
   isConnected() { return this.multiplayerConnected; }
 
-  getConnection() { return this.wsrtc; }
-
   connectState(state) {
     this.state = state;
     state.setResolvePriority(1);
@@ -233,6 +231,7 @@ class Universe extends EventTarget {
     this.room = room;
     const localPlayer = playersManager.getLocalPlayer();
     this.realms = new NetworkRealms(this.room, localPlayer.playerId);
+    await this.realms.initAudioContext();
     const onConnect = async position => {
       // Initialize network realms player.
       this.realms.localPlayer.initializePlayer({
