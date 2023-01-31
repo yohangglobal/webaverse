@@ -292,6 +292,22 @@ class Universe extends EventTarget {
     const onVirtualPlayersJoin = e => {
       const {playerId, player} = e.data;
       console.log('Player joined:', playerId);
+
+      // Initial remote player properties.
+      const voiceSpec = player.getKeyValue('voiceSpec');
+      if (voiceSpec) {
+        console.debug('TODO: Set voiceSpec on remote player\'s avatar.');
+      }
+
+      // Handle remote player updates.
+      player.addEventListener('update', e => {
+        const {key, val} = e.data;
+        if (key === 'voiceSpec') {
+          console.debug('TODO: Update voiceSpec on remote player\'s avatar.');
+        }
+
+      });
+
     };
     virtualPlayers.addEventListener('join', onVirtualPlayersJoin);
     this.virtualPlayersCleanupFns.push(() => {
