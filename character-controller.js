@@ -257,7 +257,8 @@ class Character extends THREE.Object3D {
     const self = this;
     // this.playersArray.doc.transact(function tx() {
     const voiceSpec = JSON.stringify({audioUrl, indexUrl, endpointUrl: self.voiceEndpoint ? self.voiceEndpoint.url : ''});
-    self.playerMap.set('voiceSpec', voiceSpec);
+    self.voiceSpec = voiceSpec;
+    self.realmsPlayer?.setKeyValue('voiceSpec', voiceSpec);  // NpcManager's default player isn't bound to realms.
     // });
     await this.loadVoicePack({audioUrl, indexUrl})
   }
@@ -274,17 +275,17 @@ class Character extends THREE.Object3D {
     if (!voiceId) throw new Error('voice Id is null')
     const self = this;
     const url = `${voiceEndpointBaseUrl}?voice=${encodeURIComponent(voiceId)}`;
-    this.playersArray.doc.transact(function tx() {
-      let oldVoiceSpec = self.playerMap.get('voiceSpec');
-      if (oldVoiceSpec) {
-        oldVoiceSpec = JSON.parse(oldVoiceSpec);
-        const voiceSpec = JSON.stringify({audioUrl: oldVoiceSpec.audioUrl, indexUrl: oldVoiceSpec.indexUrl, endpointUrl: url});
-        self.playerMap.set('voiceSpec', voiceSpec);
-      } else {
-        const voiceSpec = JSON.stringify({audioUrl: self.voicePack?.audioUrl, indexUrl: self.voicePack?.indexUrl, endpointUrl: url})
-        self.playerMap.set('voiceSpec', voiceSpec);
-      }
-    });
+    let oldVoiceSpec = self.voiceSpec;
+    if (oldVoiceSpec) {
+      oldVoiceSpec = JSON.parse(oldVoiceSpec);
+      const voiceSpec = JSON.stringify({audioUrl: oldVoiceSpec.audioUrl, indexUrl: oldVoiceSpec.indexUrl, endpointUrl: url});
+      this.voiceSpec = voiceSpec;
+      self.realmsPlayer?.setKeyValue('voiceSpec', voiceSpec);
+    } else {
+      const voiceSpec = JSON.stringify({audioUrl: self.voicePack?.audioUrl, indexUrl: self.voicePack?.indexUrl, endpointUrl: url})
+      this.voiceSpec = voiceSpec;
+      self.realmsPlayer?.setKeyValue('voiceSpec', voiceSpec);
+    }
     this.loadVoiceEndpoint(url)
   }
 
@@ -580,6 +581,11 @@ class StateCharacter extends Character {
     this.playersArray = null;
     this.playerMap = null;
     this.microphoneMediaStream = null;
+
+    this.realms = null;
+    this.realmsPlayer = null;
+    this.realmsPlayerCleanupFns = [];
+    this.voiceSpec = null;  // NpcManager's player isn't bound to a NetworkRealms object so need local variable.
  
     this.avatarEpoch = 0;
     this.syncAvatarCancelFn = null;
@@ -660,6 +666,45 @@ class StateCharacter extends Character {
     this.playersArray = nextPlayersArray;
     this.attachState(oldState);
     this.bindCommonObservers();
+  }
+
+  bindCommonEventListeners() {
+    const onUpdateEvent = e => {
+      const {key, val} = e;
+      if (key === 'voiceSpec') {
+        const json = JSON.parse(val);
+        if (json.endpointUrl) {
+          this.loadVoiceEndpoint(json.endpointUrl);
+        }
+        if (json.audioUrl && json.indexUrl) {
+          this.loadVoicePack({
+            audioUrl: json.audioUrl,
+            indexUrl: json.indexUrl
+          });
+        }
+      }
+    }
+    this.realmsPlayer.addEventListener('update', onUpdateEvent);
+    this.realmsPlayerCleanupFns.push(() => {
+      this.realmsPlayer.removeEventListener('update', onUpdateEvent);
+    });
+  }
+
+  unbindCommonEventListeners() {
+    for (const cleanupFn of this.realmsPlayerCleanupFns) {
+      cleanupFn();
+    }
+    this.realmsPlayerCleanupFns = [];
+
+  }
+
+  bindRealms(realms) {
+    this.unbindCommonEventListeners();
+    this.realmsPlayer = realms.localPlayer;
+    if (this.voiceSpec) {
+      this.realmsPlayer.setKeyValue('voiceSpec', this.voiceSpec);
+    }
+    this.bindCommonEventListeners();
   }
 
   getAvatarInstanceId() {
@@ -850,7 +895,7 @@ class AvatarCharacter extends StateCharacter {
   }
 
   setSpawnPoint(position, quaternion) {
-    //super.setSpawnPoint(position, quaternion);
+    // super.setSpawnPoint(position, quaternion);
     
     camera.position.copy(position);
     camera.quaternion.copy(quaternion);
@@ -1225,7 +1270,8 @@ class LocalPlayer extends UninterpolatedPlayer {
 
       if(self.voiceEndpoint) {
         const voiceSpec = JSON.stringify({audioUrl: self.voiceEndpoint.audioUrl, indexUrl: self.voiceEndpoint.indexUrl, endpointUrl: self.voiceEndpoint ? self.voiceEndpoint.url : ''});
-        self.playerMap.set('voiceSpec', voiceSpec);
+        self.voiceSpec = voiceSpec;
+        self.realmsPlayer?.setKeyValue('voiceSpec', voiceSpec);
       }
       self.playersArray.push([self.playerMap]);
       self.appManager.bindState(self.getAppsState());
@@ -1467,15 +1513,6 @@ class RemotePlayer extends InterpolatedPlayer {
         this.syncAvatar();
       }
 
-      if (e.changes.keys.get('voiceSpec') || e.added?.keys?.get('voiceSpec')) {
-        const voiceSpec = e.changes.keys.get('voiceSpec');
-        const json = JSON.parse(voiceSpec.value);
-        if (json.endpointUrl)
-          {this.loadVoiceEndpoint(json.endpointUrl);}
-        if (json.audioUrl && json.indexUrl)
-          {this.loadVoicePack({audioUrl: json.audioUrl, indexUrl: json.indexUrl});}
-      }
-
       if (e.changes.keys.get('name')) {
         this.name = e.changes.keys.get('name').value;
       }
@@ -1510,7 +1547,7 @@ class RemotePlayer extends InterpolatedPlayer {
     this.appManager.bindState(this.getAppsState());
     this.appManager.loadApps().then(() => {
       if(!this.voicer || !this.voiceEndpoint){
-        let voiceSpec = JSON.parse(this.playerMap.get('voiceSpec'));
+        let voiceSpec = JSON.parse(this.realmsPlayer.getKeyValue('voiceSpec'));
         this.loadVoiceEndpoint(voiceSpec.endpointUrl);
       }
       this.syncAvatar();

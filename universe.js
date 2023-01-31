@@ -232,11 +232,13 @@ class Universe extends EventTarget {
     const localPlayer = playersManager.getLocalPlayer();
     this.realms = new NetworkRealms(this.room, localPlayer.playerId);
     await this.realms.initAudioContext();
+
     const onConnect = async position => {
       // Initialize network realms player.
       this.realms.localPlayer.initializePlayer({
         position,
       }, {});
+      localPlayer.bindRealms(this.realms);
     };
 
     // Initiate network realms connection.
