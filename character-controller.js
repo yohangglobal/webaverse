@@ -1451,6 +1451,8 @@ class RemotePlayer extends InterpolatedPlayer {
     this.controlMode = 'remote';
   }
 
+  // TODO: Delete old multiplayer code.
+  /*
     // The audio worker handles hups and incoming voices
   // This includes the microphone from the owner of this instance
   async prepareAudioWorker() {
@@ -1480,13 +1482,14 @@ class RemotePlayer extends InterpolatedPlayer {
     }
   }
 
-  // This is called by WSRTC (in world.js) when it receives new packets for this player
+  // This is called by WSRTC (in universe.js) when it receives new packets for this player
   processAudioData(data) {
     this.prepareAudioWorker();
     if (this.audioWorkletNode) {
       this.audioDecoder.decode(data.data);
     }
   }
+  */
 
   detachState() {
     return null;

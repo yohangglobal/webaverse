@@ -232,6 +232,8 @@ class Universe extends EventTarget {
     const localPlayer = playersManager.getLocalPlayer();
     this.realms = new NetworkRealms(this.room, localPlayer.playerId);
     await this.realms.initAudioContext();
+    // Note: Audio from remote players is played non-spatially to the audio context by the multiplayer-do library, rather than
+    // (non-spatially) by the RemotePlayer objects for each player.
 
     const onConnect = async position => {
       // Initialize network realms player.
