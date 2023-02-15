@@ -57,12 +57,19 @@ User documentation is <a href="https://webaverse.notion.site/User-Docs-3a36b223e
 
 ## Installation
 
-**Important note before you clone this repo:** This repo uses Git submodules.
-You need to install with the `--recurse-submodules` flag or installation will not work. Copy the code below to clone the repository if you aren't sure.
+>Once you have prepared the above requirements, you can open your terminal (this can be within VS Code or your desired Command Prompt) and follow these steps:
 
 ```sh
-git clone --recurse-submodules https://github.com/webaverse-studios/webaverse.git && cd webaverse
-npm install # Install dependencies
+# Clone this repository
+git clone --recurse-submodules https://github.com/webaverse/app.git
+# Go into the repository
+cd webaverse
+# Install dependencies
+npm install
+# Run the app
+npm run dev
+# Navigate to the URL mentioned in the terminal
+ctrl+click https://local.webaverse.com
 ```
 
 ## Running
