@@ -80,7 +80,13 @@ Starting the application is as easy as:
 npm run dev
 ```
 
-Once the server has started up, you can press the "A" key to visit `https://local.webaverse.com`.
+You will need to let the server load and for the browser process to begin before starting up. Once it is ready, you will see the following message:
+```sh
+event - compiled client and server successfully in _ (_ modules)
+```
+
+This tells you that your Local server is set up and that you can visit your open world here: 
+>ctrl+click - `https://local.webaverse.com`
 
 ## Installation and Running on Windows
 
