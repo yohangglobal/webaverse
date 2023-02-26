@@ -66,7 +66,7 @@ User documentation is <a href="https://webaverse.notion.site/User-Docs-3a36b223e
 - 4 Core CPU / vCPUs
 - Node version 18+. The recommended way to get node is `nvm`: https://github.com/nvm-sh/nvm
 
-**Webaverse uses the following tools prior to Setup:**
+## Webaverse Tools
 
 Download and install [Git](https://git-scm.com/downloads).
 
@@ -78,6 +78,8 @@ Download and install [Visual Studio Code](https://code.visualstudio.com/) (VS C
 Download and install [Node.js](https://nodejs.org/en/download/) with version 18 (v.18).
 - You can manage your Node version by using [NVM](https://github.com/nvm-sh/nvm).
 - If you are installing Node.js for the first time, you can check the version by typing `node -v` into your terminal.
+
+## Programs Used
 
 Within this platform, the app will primarily be using these programs:
 
@@ -111,7 +113,7 @@ npm run dev
 # Wait for this to load and navigate to the URL mentioned in the terminal.
 ctrl+click https://local.webaverse.com
 ```
-
+## Loading the Server
 You will need to let the server load and for the browser process to begin before starting up. Once it is ready, you will see the following message:
 ```sh
 event - compiled client and server successfully in _ (_ modules)
@@ -157,9 +159,7 @@ npm run dev
 # Navigate to the URL mentioned in the terminal
 ctrl+click https://local.webaverse.com
 ```
-
-# Additional Tips
-[(Back to top)](#table-of-contents)
+## Hosting Source Files
 
 You can host the source files on either your Windows file system or on the Ubuntu file system in WSL's virtual drive.
 
@@ -167,9 +167,14 @@ You can host the source files on either your Windows file system or on the Ubunt
 
 **Ubuntu File System:** Run the Git commands to clone and pull source files from a WSL command prompt. In this case consider [using the Visual Studio Code WSL extension](https://code.visualstudio.com/docs/remote/wsl) as your dev environment - for features such as hot reload.
 
-Suggest to fork the repository first, then go through installation if they are making their own changes. 
+# Additional Tips
+[(Back to top)](#table-of-contents)
 
-From there they can easily create pull requests to add anything to the actual site (even though permissions are set up).
+We always encourage everyone to contribute where they can! To make changes as simple as possible, we suggest forking the repository to your own Github account. 
+
+Then, go through the [Installation](#installation) steps as described.
+
+Whenever you are ready to have your changes reviewed, refer to [Let's Build Together!](#lets-build-together) on best practices and our current processes.
 
 # Contributors ✨
 [(Back to top)](#table-of-contents)
