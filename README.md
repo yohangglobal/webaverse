@@ -64,7 +64,7 @@ User documentation is <a href="https://webaverse.notion.site/User-Docs-3a36b223e
 - 10 GB Disk Space
 - 8 GB RAM
 - 4 Core CPU / vCPUs
-- Node version 18+. The recommended way to get node is `nvm`: https://github.com/nvm-sh/nvm
+- Node version 19.0.0. The recommended way to get node is `nvm`: https://github.com/nvm-sh/nvm
 
 ## Webaverse Tools
 
@@ -124,7 +124,9 @@ Click “Open” and your designated browser will begin to build your first test
 
 <img src="packages/docs/external-website.jpg" width=50% />
 
-Once the server has loaded, you will now be able to test out your avatars and create your own scenes! This should be the first display that you see:
+Once the server has loaded, you will now be able to test out your avatars and create your own scenes! 
+
+This should be the first display that you see:
 
 <img src="packages/docs/local-scene.jpg" width=100% />
 
