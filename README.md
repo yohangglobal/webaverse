@@ -48,20 +48,106 @@ Developer documentation is <a href="https://docs.webaverse.com/docs/index">here<
 User documentation is <a href="https://webaverse.notion.site/User-Docs-3a36b223e39b4f94b3d1f6921a4c297a">here</a>
 </p>
 
-## Minimum Requirements
+## Table of Contents
+- [Key Features](#key-features)
+- [Table of Contents](#table-of-contents)
+- [Minimum Requirements](#minimum-requirements)
+- [Installation](#installation) 
+- [Installation for Windows](#installation-for-windows)
+- [Creating a New Scene](#creating-a-new-scene)
+- [Contributors ✨](#contributors-✨)
+- [Support](#support)
+
+# Minimum Requirements
+[(Back to top)](#table-of-contents)
 
 - 10 GB Disk Space
 - 8 GB RAM
 - 4 Core CPU / vCPUs
 - Node version 18+. The recommended way to get node is `nvm`: https://github.com/nvm-sh/nvm
 
-## Installation
+**Webaverse uses the following tools prior to Setup:**
 
->Once you have prepared the above requirements, you can open your terminal (this can be within VS Code or your desired Command Prompt) and follow these steps:
+Download and install [Git](https://git-scm.com/downloads).
+
+Download and install [GitHub Desktop](https://desktop.github.com/).
+
+Download and install [Visual Studio Code](https://code.visualstudio.com/) (VS Code).
+- This is optional but using an IDE/text editor will be beneficial when you start creating your own local scenes.
+
+Download and install [Node.js](https://nodejs.org/en/download/) with version 18 (v.18).
+- You can manage your Node version by using [NVM](https://github.com/nvm-sh/nvm).
+- If you are installing Node.js for the first time, you can check the version by typing `node -v` into your terminal.
+
+Within this platform, the app will primarily be using these programs:
+
+- [NodeJS](https://nodejs.org/)
+- [ThreeJS](https://threejs.org/)
+- [ViteJS](https://vitejs.dev/)
+- [ReactJS](https://reactjs.org/)
+
+# Installation
+[(Back to top)](#table-of-contents)
+
+Begin by opening the [Webaverse](https://github.com/webaverse-mmo/webaverse) repository on your device.
+
+After installing the above tools, open VS Code and create a new folder where you want to clone the webaverse repository. 
+
+This can also be done from your Command Prompt, however, your VS Code terminal will allow for opening and running the program as easily as possible. 
+
+For example, name your folder “webaverse” and type `cd webaverse` in your terminal to navigate to this folder.
+
+Now you can follow these commands within your terminal to download and install the program:
 
 ```sh
+# Clone the Webaverse repository.
+git clone https://github.com/webaverse-mmo/webaverse.git
+# Go into the repository folder you created.
+cd webaverse
+# Install the required dependencies.
+npm install
+# Run the "dev" version of the program.
+npm run dev
+# Wait for this to load and navigate to the URL mentioned in the terminal.
+ctrl+click https://local.webaverse.com
+```
+
+You will need to let the server load and for the browser process to begin before starting up. Once it is ready, you will see the following message:
+```sh
+event - compiled client and server successfully in _ (_ modules)
+```
+After navigating to the URL using “ctrl+click” you might see a warning to open an external website. 
+
+Click “Open” and your designated browser will begin to build your first testing scene.
+
+<img src="packages/docs/external-website.jpg" width=50% />
+
+Once the server has loaded, you will now be able to test out your avatars and create your own scenes! This should be the first display that you see:
+
+<img src="packages/docs/local-scene.jpg" width=100% />
+
+# Installation for Windows
+[(Back to top)](#table-of-contents)
+
+The above steps will work just as described for Operating Systems (OS) like Linux, however, Windows will require Windows Subsystem for Linux (WSL) to be set up in advance for installation.
+
+[This video](https://www.youtube.com/watch?v=5RTSlby-l9w) shows you how you can set up WSL and Ubuntu. 
+
+Alternatively, you can open up your terminal and type `wsl --install`. This should fully download and install all requirements needed to run WSL and load the Ubuntu distribution.
+
+For more details, visit Microsoft’s guide [here](https://learn.microsoft.com/en-us/windows/wsl/install).
+
+In case you are running an old version of WSL, make sure you have upgraded to WSL2. You can check this version using `wsl -l -v`.
+
+Once you have fully installed WSL, type these commands:
+
+```sh
+# Go into the webaverse folder you created.
+cd webaverse
+# Enter WSL
+wsl
 # Clone this repository
-git clone --recurse-submodules https://github.com/webaverse/app.git
+git clone https://github.com/webaverse-mmo/webaverse.git
 # Go into the repository
 cd webaverse
 # Install dependencies
@@ -72,91 +158,21 @@ npm run dev
 ctrl+click https://local.webaverse.com
 ```
 
-## Running
-
-Starting the application is as easy as:
-
-```sh
-npm run dev
-```
-
-You will need to let the server load and for the browser process to begin before starting up. Once it is ready, you will see the following message:
-```sh
-event - compiled client and server successfully in _ (_ modules)
-```
-
-This tells you that your Local server is set up and that you can visit your open world here: 
->ctrl+click - `https://local.webaverse.com`
-
-## Installation and Running on Windows
-
-#### WSL
-
-You may need to use Windows Subsystem for Linux to install and run Webaverse. [This video](https://www.youtube.com/watch?v=5RTSlby-l9w) shows you how you can set up WSL and Ubuntu.
-
-Requirements:
-
-- WSL2. If you have WSL1 installed you need to upgrade to WSL2.
-- Ubuntu 20+. Install Ubuntu 20+.
-
-Once you have WSL and Ubuntu set up, run `wsl` in a Windows command window to get a WSL Ubuntu command prompt. Run `exit` at the WSL command prompt to return to the Windows command prompt.
-
-#### Node
-
-At a WSL command prompt, use `nvm` to install Node 18+.
-
-#### Dependencies
-
-Run the following command at the WSL command prompt to install dependencies:
-
-```sh
-npm run install-libs
-```
-
-<details>
-<summary>The following libraries get installed with this command (you can also install manually):</summary>
-
-- libatk1.0-0
-- libatk-bridge2.0-0
-- libxcomposite-dev
-- libxdamage1
-- libxrandr2
-- libgbm-dev
-- libxkbcommon-x11-0
-- libpangocairo-1.0-0
-- libasound2
-- libwayland-client0
-
-</details>
-
-#### Port Mapping
-
-To route all of the needed ports for 127.0.0.1 -> WSL to work locally, run the following command in a Powershell window:
-
-```
-powershell.exe .\scripts\wsl-port-forwarding.ps1
-```
-
-#### Installation
+# Additional Tips
+[(Back to top)](#table-of-contents)
 
 You can host the source files on either your Windows file system or on the Ubuntu file system in WSL's virtual drive.
 
-**Windows File System:** Run the Git commands to clone and pull source files from a Windows command prompt. You may find this best if you're using programs such as SourceTree as a Git GUI. You can also edit source using your usual IDE.
+**Windows File System:** Run the Git commands to clone and pull source files from a Windows command prompt. You may find this best if you're using programs such as SourceTree as a Git GUI. You can also edit source using your usual IDE.
 
-**Ubuntu File System:** Run the Git commands to clone and pull source files from a WSL command prompt. In this case consider [using the Visual Studio Code WSL extension](https://code.visualstudio.com/docs/remote/wsl) as your dev environment - for features such as hot reload.
+**Ubuntu File System:** Run the Git commands to clone and pull source files from a WSL command prompt. In this case consider [using the Visual Studio Code WSL extension](https://code.visualstudio.com/docs/remote/wsl) as your dev environment - for features such as hot reload.
 
-#### Running
+Suggest to fork the repository first, then go through installation if they are making their own changes. 
 
-Start the application by running the NPM command at a WSL command prompt.
+From there they can easily create pull requests to add anything to the actual site (even though permissions are set up).
 
-### Deployment
-
-To deploy the compiler app to vercel, use the following build settings:
-build command: `npm run build`
-output directory: `dist/packages/compiler/.next`
-root directory: `./` or leave blank
-
-## Contributors ✨
+# Contributors ✨
+[(Back to top)](#table-of-contents)
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
 
@@ -233,15 +249,21 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
 
-## Let's build it together!
+# Support
+[(Back to top)](#table-of-contents)
+
+## Let's build together!
+[(Back to top)](#table-of-contents)
 
 We would love for you to come build with us. First, please review the documentation in it's entirety before contributing. Also join our [Discord](https://discord.gg/webaverse) and introduce yourself.
 
-##### New Issues and Features
+### New Issues and Features
+[(Back to top)](#table-of-contents)
 
 Please search Github issues before reporting a new issue or starting a new feature. If you are starting a new feature or bug fix, please write up or reference an issue and indicate that you are working on it.
 
-##### Pull Requests
+### Pull Requests
+[(Back to top)](#table-of-contents)
 
 Please make sure your PRs change as little existing code as is necessary to prevent upstream merge conflicts. When posting a pull request, please document what the PR does and how it can be reviewed and QA'd. PRs will be reviewed and accepted if they conform to our linting and code conventions, don't cause any bugs and don't decrease performance of the app.
 
