@@ -53,8 +53,12 @@ User documentation is <a href="https://webaverse.notion.site/User-Docs-3a36b223e
 - [Key Features](#key-features)
 - [Table of Contents](#table-of-contents)
 - [Minimum Requirements](#minimum-requirements)
+  - [Webaverse Tools](#webaverse-tools)
+  - [Programs Used](#programs-used)
 - [Installation](#installation) 
+  - [Loading the Server](#loading-the-server)
 - [Installation for Windows](#installation-for-windows)
+  - [Hosting Source Files](#hosting-source-files)
 - [Creating a New Scene](#creating-a-new-scene)
 - [Contributors ✨](#contributors-✨)
 - [Support](#support)
@@ -115,6 +119,8 @@ npm run dev
 ctrl+click https://local.webaverse.com
 ```
 ## Loading the Server
+[(Back to top)](#table-of-contents)
+
 You will need to let the server load and for the browser process to begin before starting up. Once it is ready, you will see the following message:
 ```sh
 event - compiled client and server successfully in _ (_ modules)
@@ -163,6 +169,7 @@ npm run dev
 ctrl+click https://local.webaverse.com
 ```
 ## Hosting Source Files
+[(Back to top)](#table-of-contents)
 
 You can host the source files on either your Windows file system or on the Ubuntu file system in WSL's virtual drive.
 
@@ -170,7 +177,23 @@ You can host the source files on either your Windows file system or on the Ubunt
 
 **Ubuntu File System:** Run the Git commands to clone and pull source files from a WSL command prompt. In this case consider [using the Visual Studio Code WSL extension](https://code.visualstudio.com/docs/remote/wsl) as your dev environment - for features such as hot reload.
 
-# New Scene
+# Creating a New Scene
+[(Back to top)](#table-of-contents)
+
+Now that you have your environment set up and the initial view of your world, we can finish by showing how to create your own scene.
+
+This will focus on adding a new environment to this repository, so we recommend becoming familiar with the code layout of each folder.
+
+Below is the main area(s) you will be working inside:
+**packages → client → public → scenes folder**
+
+*insert packages*
+
+"packages" contains the majority of files you are engaging with, all from the "client" itself to the README images you see in "docs".
+
+The "client" folder holds
+
+## Notes to Edit
 
 Still figuring out this part, the organization of the repository has completely changed.
 
@@ -203,12 +226,6 @@ You’re now running an instance of your new scene file and whatever is changed 
 You will need to make sure that you keep track of the locations for each file.
 
 Ensure that your file is saved, head back to your browser and refresh. You should now have a uniquely rendered city scene with a new equippable avatar.
-
-## Notes
-
-Now just going to see if this shows up for me or not
-
-Needed to add in the "objects" at the beginning, hopefully that does the trick. Will also simply look at the other scenes in the "scenes" folder under packackes->client->public->scenes for examples.
 
 # Additional Tips
 [(Back to top)](#table-of-contents)
