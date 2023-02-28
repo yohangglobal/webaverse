@@ -49,6 +49,7 @@ User documentation is <a href="https://webaverse.notion.site/User-Docs-3a36b223e
 </p>
 
 ## Table of Contents
+
 - [Key Features](#key-features)
 - [Table of Contents](#table-of-contents)
 - [Minimum Requirements](#minimum-requirements)
@@ -168,6 +169,46 @@ You can host the source files on either your Windows file system or on the Ubunt
 **Windows File System:** Run the Git commands to clone and pull source files from a Windows command prompt. You may find this best if you're using programs such as SourceTree as a Git GUI. You can also edit source using your usual IDE.
 
 **Ubuntu File System:** Run the Git commands to clone and pull source files from a WSL command prompt. In this case consider [using the Visual Studio Code WSL extension](https://code.visualstudio.com/docs/remote/wsl) as your dev environment - for features such as hot reload.
+
+# New Scene
+
+Still figuring out this part, the organization of the repository has completely changed.
+
+What is 'client', compared to the 'app' folder that is specified previously.
+
+Going to assume that 'client' is similar to 'app' here and that i should make the 'test-models' folder there.
+
+So first step is to download the avatar and the scene itself. Used
+https://github.com/KhronosGroup/glTF-Sample-Models/blob/master/2.0/VC/glTF-Binary/VC.glb
+
+and https://hub.vroid.com/en/characters/1248981995540129234/models/8640547963669442173
+for this
+
+Also put in the labcoat into 'test-models'
+
+Then go back to scenes and open up 'block.scn'
+
+Using 'block.scn' you will have to create a new file called 'test-environment' for this example
+
+Then Open up the scenes.json file in the scenes folder and add test-environment.scn to the list.
+
+Make sure to add a comma after the scene above and close with ""
+
+Go back to your Webaverse local instance running in browser and select the test-environment.scn file. 
+
+You will need to click on the Map icon in the top right to search for the file.
+
+You’re now running an instance of your new scene file and whatever is changed and saved to the .scn file will update when you refresh your browser.
+
+You will need to make sure that you keep track of the locations for each file.
+
+Ensure that your file is saved, head back to your browser and refresh. You should now have a uniquely rendered city scene with a new equippable avatar.
+
+## Notes
+
+Now just going to see if this shows up for me or not
+
+Needed to add in the "objects" at the beginning, hopefully that does the trick. Will also simply look at the other scenes in the "scenes" folder under packackes->client->public->scenes for examples.
 
 # Additional Tips
 [(Back to top)](#table-of-contents)
