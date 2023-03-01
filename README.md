@@ -60,8 +60,19 @@ User documentation is <a href="https://webaverse.notion.site/User-Docs-3a36b223e
 - [Installation for Windows](#installation-for-windows)
   - [Hosting Source Files](#hosting-source-files)
 - [Creating a New Scene](#creating-a-new-scene)
+  - [Code Layout](#code-layout)
+  - [Building your Test Model](#building-your-test-model)
+    - [Editing the `scenes` Folder](#editing-the-scenes-folder)
+    - [Adding to your Test Environment](#adding-to-your-test-environment)
+- [Additional Tips](#additional-tips)
+  - [Exploring](#exploring)
+  - [Helping Out](#helping-out)
 - [Contributors ✨](#contributors-✨)
 - [Support](#support)
+  - [Let's Build Together](#lets-build-together)
+  - [New Issues and Features](#new-issues-and-features)
+  - [Pull Requests](#pull-requests)
+- [We Hope to See You Soon!](#we-hope-to-see-you-soon!)
 
 # Minimum Requirements
 [(Back to top)](#table-of-contents)
@@ -180,56 +191,175 @@ You can host the source files on either your Windows file system or on the Ubunt
 # Creating a New Scene
 [(Back to top)](#table-of-contents)
 
+# Creating a New Scene
+
 Now that you have your environment set up and the initial view of your world, we can finish by showing how to create your own scene.
 
 This will focus on adding a new environment to this repository, so we recommend becoming familiar with the code layout of each folder.
 
-Below is the main area(s) you will be working inside:
+## Code Layout
+
+The main area you will work with in this example is the "scenes" folder, which is displayed as follows:
 **packages → client → public → scenes folder**
 
-*insert packages*
+The "packages" folder contains the majority of files you will engage with, all from the "client" itself to the README images you see in "docs".
 
-"packages" contains the majority of files you are engaging with, all from the "client" itself to the README images you see in "docs".
+![Packages Layout](https://i.imgur.com/zy9kz1H.png)
 
-The "client" folder holds
+Next, we will open `client` to visit the `public` folder. 
 
-## Notes to Edit
+Within the `public` folder, we can view each folder's use case, such as the avatars we will use and the overarching scenes that we can display within Webaverse.
 
-Still figuring out this part, the organization of the repository has completely changed.
+![Scenes Folder](https://i.imgur.com/hMQkiVV.png)
 
-What is 'client', compared to the 'app' folder that is specified previously.
+This layout can be viewed in the other test folders such as `test-e2e`. 
 
-Going to assume that 'client' is similar to 'app' here and that i should make the 'test-models' folder there.
+As you begin building your own world, the `scenes` folder and its files can be formed around any avatar, item, or environment you upload.
 
-So first step is to download the avatar and the scene itself. Used
-https://github.com/KhronosGroup/glTF-Sample-Models/blob/master/2.0/VC/glTF-Binary/VC.glb
+To show this in more detail, we will create a new Scene (labeled as `.scn` files) to portray an environment with our own avatar for in-game use.
 
-and https://hub.vroid.com/en/characters/1248981995540129234/models/8640547963669442173
-for this
+## Building your Test Model
 
-Also put in the labcoat into 'test-models'
+First, you will need to download an environment and avatar for this example.
 
-Then go back to scenes and open up 'block.scn'
+For the environment, we can visit the [glTF Sample Models Repo](https://github.com/KhronosGroup/glTF-Sample-Models/blob/master/2.0/VC/glTF-Binary/VC.glb) and click "Download" in the top right corner.
 
-Using 'block.scn' you will have to create a new file called 'test-environment' for this example
+For an avatar, we have chosen this [VRoid Hub Sample Character](https://hub.vroid.com/en/characters/1248981995540129234/models/8640547963669442173). Click "Use this Model" to download.
 
-Then Open up the scenes.json file in the scenes folder and add test-environment.scn to the list.
+![Sample Character](https://i.imgur.com/q2vYbSG.png)
 
-Make sure to add a comma after the scene above and close with ""
+After these files have downloaded, open up your Webaverse directory.
 
-Go back to your Webaverse local instance running in browser and select the test-environment.scn file. 
+We will start by clicking on the `client` folder and creating a new folder called `test-models`.
 
-You will need to click on the Map icon in the top right to search for the file.
+Drag your new models into this folder and rename them accordingly. 
 
-You’re now running an instance of your new scene file and whatever is changed and saved to the .scn file will update when you refresh your browser.
+![Test Models Folder](https://i.imgur.com/A1ZqbZK.png)
 
-You will need to make sure that you keep track of the locations for each file.
+### Editing the `scenes` Folder
 
-Ensure that your file is saved, head back to your browser and refresh. You should now have a uniquely rendered city scene with a new equippable avatar.
+Next, we will go to the previously mentioned `public` folder and open `scenes`.
+
+Here we will see an extensive list of scenes that can be loaded into Webaverse.
+
+![Scenes Folder](https://i.imgur.com/kJKymA8.png)
+
+As the foundation for our new Scene, we will be using the `block.scn` file.
+
+![block.scn File](https://i.imgur.com/ytNNZeG.png)
+
+You can either save this file as a new `.scn` file and label it "test-environment" or create a new file and simply copy-paste the code over.
+
+For this example, we have left the `block.scn` file as is and created a new `test-environment.scn` file.
+
+![Initial test-environment.scn](https://i.imgur.com/t1ABTo7.jpg)
+
+After this has been set up, go to the `scenes.json` file within this folder.
+
+You will see a list of all the added scenes, which is how your local Webaverse will be able to switch between scenes.
+
+Scroll down to the bottom and add "test-environment.scn" at the end.
+
+>Make sure to add a comma after the scene above this.
+
+![Test Environment Scene](https://i.imgur.com/Qe6nVSb.png)
+
+Now you can go back and visit the local instance of Webaverse that you have running and select this file.
+
+Click on the "Maps" icon on the top right and you should see your new `test-environment.scn` file appear here.
+
+With this displayed, you can make changes to the underlying file and see your changes whenever you refresh the browser.
+
+### Adding to your Test Environment
+
+Up next is editing your new Scene!
+
+Revisit the `test-environment.scn` file. Each Scene starts out with ``"objects"`` which references the different parts of the scene you will be creating.
+
+This covers everything from the position of your avatar, the lighting within the scene, and the full environment that we have downloaded.
+
+Our first step will be to remove the next section under the directional light object so that we can add a new position.
+
+![Removing an Object](https://i.imgur.com/tdm8Z6z.png)
+
+Once removing these, we can add in new objects.
+
+We will start by adjusting the render settings to add in fog and a depth of field.
+
+Copy the following code block underneath the object, beginning with `},`:
+
+```shell=
+    },
+    {
+      "type": "application/rendersettings",
+      "content": {
+        "fog": {
+          "fogType": "exp",
+          "args": [[255, 255, 255], 0.001]
+        },
+        "dof": {
+          "focus": 1.5,
+          "aperture": 0.0004,
+          "maxblur": 0.002
+        }
+      }
+    },
+```
+
+Then we will place the downloaded environment into the center of our scene and increase its scale by 10x.
+
+Place this code block right underneath the one above:
+
+```shell=
+    {
+	"position": [
+		0,
+		0,
+		0
+	],
+	"scale": [
+        10,
+        10,
+        10
+	],
+	"start_url": "/test-models/environment.glb"
+    },
+```
+
+Finally, we can add the avatar and place it two meters to the right of our view. 
+
+When you initially opened your local scene, you most likely noticed the first-person view. With this example, and others in the `scenes` folder, you can play around with different ways for your avatar to be displayed.
+
+Copy this code block underneath the environment and close it out like this:
+
+```shell=
+{
+	"position": [
+		2,
+		0,
+		0
+	],
+    	"start_url": "/test-models/avatar.vrm",
+        "dynamic": true
+    }
+  ]
+}
+```
+
+Now save your file, go back to your browser's local instance, and refresh! You should now be able to move around in a brand new city scene with an equippable avatar.
 
 # Additional Tips
 [(Back to top)](#table-of-contents)
 
+# Exploring
+
+With your brand new scene up and running, we suggest getting familiar with even more as you learn. 
+
+You can start by testing out different parameters or looking at other files in the `scenes` folder to understand how everything works.
+
+Eventually, your experimentation will lead you toward new ideas to build out and help you understand what is possible in Webaverse.
+
+## Helping Out
 We always encourage everyone to contribute where they can! To make changes as simple as possible, we suggest forking the repository to your own Github account. 
 
 Then, go through the [Installation](#installation) steps as described.
@@ -317,19 +447,31 @@ This project follows the [all-contributors](https://github.com/all-contributors/
 # Support
 [(Back to top)](#table-of-contents)
 
-## Let's build together!
+## Let's Build Together!
 [(Back to top)](#table-of-contents)
 
-We would love for you to come build with us. First, please review the documentation in it's entirety before contributing. Also join our [Discord](https://discord.gg/webaverse) and introduce yourself.
+We would love for you to come build with us. Before getting started, please review the documentation in it's entirety before contributing. 
+
+We have provided both the [User Documentation](https://www.notion.so/User-Docs-3a36b223e39b4f94b3d1f6921a4c297a) and the [Developer Documentation](https://docs.webaverse.com/docs/index) for you to begin with.
+
+For additional questions and to meet our contributors, join our [Discord](https://discord.gg/webaverse) and introduce yourself!
 
 ### New Issues and Features
 [(Back to top)](#table-of-contents)
 
-Please search Github issues before reporting a new issue or starting a new feature. If you are starting a new feature or bug fix, please write up or reference an issue and indicate that you are working on it.
+For developers adding to this repository, please search Github issues before reporting a new issue or starting a new feature. 
+
+If you are starting a new feature or bug fix, we ask that you summarize and reference the issue, then indicate that you are working on it.
 
 ### Pull Requests
 [(Back to top)](#table-of-contents)
 
-Please make sure your PRs change as little existing code as is necessary to prevent upstream merge conflicts. When posting a pull request, please document what the PR does and how it can be reviewed and QA'd. PRs will be reviewed and accepted if they conform to our linting and code conventions, don't cause any bugs and don't decrease performance of the app.
+Please make sure your PRs change as little existing code as is necessary to prevent upstream merge conflicts. 
+
+When posting a pull request, document what the PR does and how it can be reviewed for Quality Assurance (QA).
+
+PRs will be reviewed and accepted if they conform to our linting and code conventions. These include PRs that do not cause any bugs and will not decrease performance of the app.
+
+# We Hope to See You Soon!
 
 <img align="middle" style='margin: 1em' src="packages/docs/town.jpeg" width=100% />
