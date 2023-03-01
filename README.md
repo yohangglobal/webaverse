@@ -83,6 +83,7 @@ User documentation is <a href="https://webaverse.notion.site/User-Docs-3a36b223e
 - Node version 19.0.0. The recommended way to get node is `nvm`: https://github.com/nvm-sh/nvm
 
 ## Webaverse Tools
+[(Back to top)](#table-of-contents)
 
 Download and install [Git](https://git-scm.com/downloads).
 
@@ -96,6 +97,7 @@ Download and install [Node.js](https://nodejs.org/en/download/) with version 18
 - If you are installing Node.js for the first time, you can check the version by typing `node -v` into your terminal.
 
 ## Programs Used
+[(Back to top)](#table-of-contents)
 
 Within this platform, the app will primarily be using these programs:
 
@@ -191,13 +193,12 @@ You can host the source files on either your Windows file system or on the Ubunt
 # Creating a New Scene
 [(Back to top)](#table-of-contents)
 
-# Creating a New Scene
-
 Now that you have your environment set up and the initial view of your world, we can finish by showing how to create your own scene.
 
 This will focus on adding a new environment to this repository, so we recommend becoming familiar with the code layout of each folder.
 
 ## Code Layout
+[(Back to top)](#table-of-contents)
 
 The main area you will work with in this example is the "scenes" folder, which is displayed as follows:
 **packages → client → public → scenes folder**
@@ -219,6 +220,7 @@ As you begin building your own world, the `scenes` folder and its files can be f
 To show this in more detail, we will create a new Scene (labeled as `.scn` files) to portray an environment with our own avatar for in-game use.
 
 ## Building your Test Model
+[(Back to top)](#table-of-contents)
 
 First, you will need to download an environment and avatar for this example.
 
@@ -237,6 +239,7 @@ Drag your new models into this folder and rename them accordingly.
 ![Test Models Folder](https://i.imgur.com/A1ZqbZK.png)
 
 ### Editing the `scenes` Folder
+[(Back to top)](#table-of-contents)
 
 Next, we will go to the previously mentioned `public` folder and open `scenes`.
 
@@ -271,6 +274,7 @@ Click on the "Maps" icon on the top right and you should see your new `test-envi
 With this displayed, you can make changes to the underlying file and see your changes whenever you refresh the browser.
 
 ### Adding to your Test Environment
+[(Back to top)](#table-of-contents)
 
 Up next is editing your new Scene!
 
@@ -352,6 +356,7 @@ Now save your file, go back to your browser's local instance, and refresh! You s
 [(Back to top)](#table-of-contents)
 
 # Exploring
+[(Back to top)](#table-of-contents)
 
 With your brand new scene up and running, we suggest getting familiar with even more as you learn. 
 
@@ -360,6 +365,8 @@ You can start by testing out different parameters or looking at other files in t
 Eventually, your experimentation will lead you toward new ideas to build out and help you understand what is possible in Webaverse.
 
 ## Helping Out
+[(Back to top)](#table-of-contents)
+
 We always encourage everyone to contribute where they can! To make changes as simple as possible, we suggest forking the repository to your own Github account. 
 
 Then, go through the [Installation](#installation) steps as described.
@@ -442,7 +449,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind are welcome!
 
 # Support
 [(Back to top)](#table-of-contents)
@@ -473,5 +480,6 @@ When posting a pull request, document what the PR does and how it can be reviewe
 PRs will be reviewed and accepted if they conform to our linting and code conventions. These include PRs that do not cause any bugs and will not decrease performance of the app.
 
 # We Hope to See You Soon!
+[(Back to top)](#table-of-contents)
 
 <img align="middle" style='margin: 1em' src="packages/docs/town.jpeg" width=100% />
