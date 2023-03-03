@@ -67,12 +67,12 @@ User documentation is <a href="https://webaverse.notion.site/User-Docs-3a36b223e
 - [Additional Tips](#additional-tips)
   - [Exploring](#exploring)
   - [Helping Out](#helping-out)
-- [Contributors ✨](#contributors-✨)
+- [Contributors ✨](#contributors)
 - [Support](#support)
   - [Let's Build Together](#lets-build-together)
   - [New Issues and Features](#new-issues-and-features)
   - [Pull Requests](#pull-requests)
-- [We Hope to See You Soon!](#we-hope-to-see-you-soon!)
+- [We Hope to See You Soon!](#we-hope-to-see-you-soon)
 
 # Minimum Requirements
 [(Back to top)](#table-of-contents)
@@ -373,7 +373,7 @@ Then, go through the [Installation](#installation) steps as described.
 
 Whenever you are ready to have your changes reviewed, refer to [Let's Build Together!](#lets-build-together) on best practices and our current processes.
 
-# Contributors ✨
+# Contributors
 [(Back to top)](#table-of-contents)
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
